@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from "react";
+import React from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import Preloader from "./components/layouts/Preloader";
 import Dashboard from "./components/pages/Dashboard";
@@ -34,7 +34,6 @@ import Menugrid from "./components/pages/Menugrid";
 import Menulist from "./components/pages/Menulist";
 import Modals from "./components/pages/Modals";
 import Googlechart from "./components/pages/Googlechart";
-import Orders from "./components/pages/LiveOrders";
 import Pagination from "./components/pages/Pagination";
 import Preloaders from "./components/pages/Preloaders";
 import Productdetail from "./components/pages/Productdetail";
@@ -66,12 +65,19 @@ import Modalregister from "./components/pages/Modalregister";
 import Portfolio from "./components/pages/Portfolio";
 import Stockmanagement from "./components/pages/Stockmanagement";
 import Userprofile from "./components/pages/Userprofile";
+import CheckIn from "./components/pages/CheckIn";
 import Webanalytics from "./components/pages/Webanalytics";
 import { MerchantInterfaceProvider } from "./context/MerchantInterfaceContext";
 import LiveOrders from "./components/pages/LiveOrders";
 import PastOrders from "./components/pages/PastOrders";
 import { Services, Functions, Constants } from "../src/lib";
 import { io } from "socket.io-client";
+import axios from "axios";
+import Swal from "sweetalert2";
+import ding from "../src/assets/audio/ding-sound.mp3";
+import toastr from "toastr";
+import "toastr/build/toastr.min.css";
+import moment from "moment-timezone";
 
 class App extends React.Component {
   constructor(props) {
@@ -81,23 +87,239 @@ class App extends React.Component {
         "ngrok-skip-browser-warning": true,
       },
       transports: ["polling"],
+      autoConnect: false,
     });
+    this.toastsuccess = this.toastsuccess.bind(this);
     this.state = {
       inbox: [],
       sentEmails: [],
-      liveOrders: [],
+      shopData: {},
+      activeOrders: {},
+      pastOrders: {},
+      newEmailCount: sessionStorage.getItem("newEmailCount"),
+      // newNotificationCount: sessionStorage.getItem("newNotificationCount"),
     };
   }
   componentDidMount() {
-    this.setState({ inbox: [1, 2, 3] });
+    if (window.location.pathname !== "/empire-steakhouse/login") {
+      this.socket.connect();
+      this.startServices();
+      this.getAllEmails();
+      this.onCheckUpdatesFromSocket();
+    }
   }
+  resetNewEmailCount = () => {
+    this.setState({
+      newEmailCount: sessionStorage.setItem("newEmailCount", ""),
+    });
+  };
+  toastsuccess(updatedInbox) {
+    const { name } = updatedInbox;
+    toastr.remove();
+    toastr.options = {
+      closeButton: false,
+      debug: false,
+      newestOnTop: true,
+      progressBar: false,
+      positionClass: "toast-top-right",
+      preventDuplicates: false,
+      showDuration: "300",
+      hideDuration: "1000",
+      timeOut: 0,
+      extendedTimeOut: 0,
+      showEasing: "swing",
+      hideEasing: "linear",
+      showMethod: "fadeIn",
+      hideMethod: "fadeOut",
+    };
+    toastr.options.onclick = () => {
+      this.resetNewEmailCount();
+      window.location.pathname = "/empire-steakhouse/email";
+    };
+    toastr.success(`New message from ${name}`, "Alert");
+  }
+  startServices = async () => {
+    const { RankActiveOrders, RankPastOrders, startServices } = Functions;
+    const data = await startServices();
+    console.log("data", data);
+    this.setState(
+      {
+        shopBasicInfo: data.data,
+        activeOrders: RankActiveOrders(data.data.order),
+        pastOrders: RankPastOrders(data.data.pastOrder),
+      },
+      () => {
+        localStorage.setItem(
+          "activeOrders",
+          JSON.stringify(this.state.activeOrders)
+        );
+        localStorage.setItem(
+          "shopBasicInfo",
+          JSON.stringify(this.state.shopBasicInfo)
+        );
+      }
+    );
+  };
+  onCheckUpdatesFromSocket = () => {
+    this.socket.on("add-order-to-active-orders", this.onAddNewOrder);
+    this.socket.on("add-order-to-past-orders", this.onAddPastOrder);
+    this.socket.on("add-email-to-inbox", this.onAddNewEmail);
+  };
+  onAddNewEmail = (updatedInbox) => {
+    this.toastsuccess(updatedInbox);
+    if (!sessionStorage.getItem("newEmailCount")) {
+      sessionStorage.setItem("newEmailCount", 1);
+    } else {
+      sessionStorage.setItem(
+        "newEmailCount",
+        Number(sessionStorage.getItem("newEmailCount")) + 1
+      );
+    }
+    // if (!sessionStorage.getItem("newNotificationCount")) {
+    //   sessionStorage.setItem("newNotificationCount", 1);
+    // } else {
+    //   sessionStorage.setItem(
+    //     "newNotificationCount",
+    //     Number(sessionStorage.getItem("newNotificationCount")) + 1
+    //   );
+    // }
+    this.setState({
+      inbox: [{ ...updatedInbox }, ...this.state.inbox],
+      newEmailCount: sessionStorage.getItem("newEmailCount"),
+      // newNotificationCount: sessionStorage.getItem("newNotificationCount"),
+    });
+  };
+
+  // resetNotificationCount = () => {
+  //   this.setState({
+  //     newNotificationCount: sessionStorage.setItem("newNotificationCount", ""),
+  //   });
+  // };
+  onAcceptOrder = (order, audio = null) => {
+    const { onConfirmOrder } = Functions;
+    const { orderID } = order;
+    const { activeOrders } = this.state;
+    const updatedActiveOrders = activeOrders.map((item) => {
+      let orderDetails = { ...item.orderDetails };
+      if (orderID === item.orderDetails.orderID) {
+        orderDetails = { ...item.orderDetails, orderStatus: "Accepted" };
+        onConfirmOrder({ ...item, orderDetails });
+      }
+      return { ...item, orderDetails };
+    });
+    this.setState({ activeOrders: updatedActiveOrders }, () => {
+      if (audio) audio.pause();
+    });
+  };
+  onCompleteOrder = async (order) => {
+    const { onCompleteOrder } = Functions;
+    console.log(1);
+    order.orderDetails.orderStatus = "Completed";
+    await onCompleteOrder(order);
+    console.log(1);
+    this.startServices();
+  };
+  getAllEmails = async (refresh) => {
+    const { RankEmail, onGetAllEmails } = Functions;
+    const response = await onGetAllEmails();
+    const { data } = response;
+    this.setState({
+      inbox: RankEmail(data.emails),
+      sentEmails: RankEmail(data.sentEmails),
+    });
+  };
+  newOrderAlert(newOrder, audio) {
+    Swal.close();
+    Swal.fire({
+      title: "New Online Order",
+      text: `You have a new Online Order from ${newOrder.orderDetails.name}`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#07be6e",
+      cancelButtonColor: "#f9423c",
+      confirmButtonText: "Accept",
+      cancelButtonText: "Ignore",
+    }).then((result) => {
+      if (result.value) {
+        const { orderDetails } = newOrder;
+        this.onAcceptOrder(orderDetails, audio);
+        // Swal.fire("Deleted!", "Your file has been deleted.", "success");
+      } else {
+        audio.pause();
+      }
+    });
+  }
+  playNewOrderSound() {
+    const audio = new Audio(ding);
+    audio.loop = true;
+    return audio;
+  }
+  // onConfirmOrder = async (orders) => {
+  //   const response = await axios.post(
+  //     "https://6505-2600-1700-5cac-3d30-f864-cbeb-fcb3-271b.ngrok.io/api/v1/my-restaurant/confirmOrder",
+  //     {
+  //       headers: { "ngrok-skip-browser-warning": true },
+  //       orders,
+  //     }
+  //   );
+  // };
+  onAddPastOrder = (pastOrder) => {
+    const { RankPastOrders } = Functions;
+    // const audio = this.playNewOrderSound();
+    // audio.play();
+    // if (!sessionStorage.getItem("newNotificationCount")) {
+    //   sessionStorage.setItem("newNotificationCount", 1);
+    // } else {
+    //   sessionStorage.setItem(
+    //     "newNotificationCount",
+    //     Number(sessionStorage.getItem("newNotificationCount")) + 1
+    //   );
+    //
+    console.log("pasT", pastOrder);
+    this.setState({
+      pastOrders: RankPastOrders([{ ...pastOrder }, ...this.state.pastOrders]),
+      // newNotificationCount: sessionStorage.getItem("newNotificationCount"),
+    });
+  };
+  onAddNewOrder = (newOrder) => {
+    const { RankActiveOrders } = Functions;
+    const audio = this.playNewOrderSound();
+    audio.play();
+    // if (!sessionStorage.getItem("newNotificationCount")) {
+    //   sessionStorage.setItem("newNotificationCount", 1);
+    // } else {
+    //   sessionStorage.setItem(
+    //     "newNotificationCount",
+    //     Number(sessionStorage.getItem("newNotificationCount")) + 1
+    //   );
+    // }
+    this.setState(
+      {
+        activeOrders: RankActiveOrders([
+          { ...newOrder },
+          ...this.state.activeOrders,
+        ]),
+        // newNotificationCount: sessionStorage.getItem("newNotificationCount"),
+      },
+      () => this.newOrderAlert(newOrder, audio)
+    );
+  };
   render() {
     return (
       <MerchantInterfaceProvider
         value={{
           inbox: this.state.inbox,
           sentEmails: this.state.sentEmails,
-          liveOrders: this.state.liveOrders,
+          activeOrders: this.state.activeOrders,
+          pastOrders: this.state.pastOrders,
+          onAcceptOrder: this.onAcceptOrder,
+          onCompleteOrder: this.onCompleteOrder,
+          getAllEmails: this.getAllEmails,
+          newEmailCount: this.state.newEmailCount,
+          resetNewEmailCount: this.resetNewEmailCount,
+
+          // newNotificationCount: this.state.newNotificationCount,
+          // resetNotificationCount: this.resetNotificationCount,
         }}
       >
         <Router basename={"/empire-steakhouse"}>
@@ -105,6 +327,7 @@ class App extends React.Component {
           <Switch>
             <Route exact path="/dashboard" component={Dashboard} />
             <Route path="/accordions" component={Accordions} />
+            <Route path="/checkin" component={CheckIn} />
             <Route path="/add-product" component={Addproduct} />
             <Route path="/alerts" component={Alerts} />
             <Route path="/animations" component={Animations} />

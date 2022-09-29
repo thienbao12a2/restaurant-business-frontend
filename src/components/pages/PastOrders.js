@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import Sidenavigation from "../layouts/Sidenavigation";
 import Topnavigation from "../layouts/Topnavigation";
 import Breadcrumb from "../sections/Orders/Breadcrumb";
+import PastOrderTable from "../sections/Orders/PastOrderTable";
 import Favorder from "../sections/Orders/Favorder";
 import Ordertable from "../sections/Orders/Ordertable";
 import Quickbar from "../layouts/Quickbar";
@@ -12,6 +13,10 @@ import axios from "axios";
 import { withRouter } from "react-router-dom";
 import { io } from "socket.io-client";
 import jwt from "jsonwebtoken";
+import {
+  withContext,
+  MerchantInterfaceConsumer,
+} from "../../context/MerchantInterfaceContext";
 
 class PastOrders extends Component {
   constructor(props) {
@@ -67,7 +72,9 @@ class PastOrders extends Component {
   };
   render() {
     const { name, activeOrders } = this.state;
-    console.log(activeOrders);
+    const { context } = this.props;
+    const { pastOrders } = context;
+    console.log(pastOrders);
     return (
       <div className="ms-body ms-aside-left-open ms-primary-theme ms-has-quickbar">
         <Sidenavigation />
@@ -78,7 +85,7 @@ class PastOrders extends Component {
               <div className="col-md-12">
                 <Breadcrumb page={"Past Orders"} />
                 {/* <Favorder /> */}
-                <Ordertable />
+                <PastOrderTable pastOrders={pastOrders} />
               </div>
             </div>
           </div>
@@ -89,4 +96,4 @@ class PastOrders extends Component {
   }
 }
 
-export default PastOrders;
+export default withContext(MerchantInterfaceConsumer)(PastOrders);

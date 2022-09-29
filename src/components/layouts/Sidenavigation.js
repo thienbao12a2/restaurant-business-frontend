@@ -87,7 +87,7 @@ class Sidenavigation extends Component {
             {/* live orders end */}
             {/* past orders */}
             <li className="menu-item">
-              <Link to="/orders">
+              <Link to="/past-orders">
                 {" "}
                 <span>
                   <i className="fas fa-clipboard-check fs-16" />
@@ -95,9 +95,19 @@ class Sidenavigation extends Component {
                 </span>
               </Link>
             </li>
-            {/* live orders end */}
-            {/* customers*/}
+            {/* past orders end */}
             <li className="menu-item">
+              <Link to="/checkin">
+                {" "}
+                <span>
+                  <i className="fas fa-calendar-alt fs-16" />
+                  Check In
+                </span>
+              </Link>
+            </li>
+            {/* past orders end */}
+            {/* customers*/}
+            {/* <li className="menu-item">
               <Link to="#" className="has-chevron">
                 {" "}
                 <span>
@@ -113,7 +123,7 @@ class Sidenavigation extends Component {
               >
                 <li>
                   {" "}
-                  <Link to="/customer-review">Customers Review</Link>
+                  <Link to="/customer-review">Upcoming Reservations</Link>
                 </li>
                 <li>
                   {" "}
@@ -124,7 +134,7 @@ class Sidenavigation extends Component {
                   <Link to="/social-activity">Social Activity</Link>
                 </li>
               </ul>
-            </li>
+            </li> */}
             {/* Customers  end */}
             {/* product */}
             <li className="menu-item">

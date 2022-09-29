@@ -4,21 +4,21 @@ import { Collapse } from "react-collapse";
 import OrderDetails from "./OrderDetails";
 import { formatToTimeZone } from "date-fns-timezone/dist/formatToTimeZone";
 
-class Ordertable extends Component {
+class PastOrderTable extends Component {
   constructor(props) {
     super(props);
-    this.state = { orderView: this.props.activeOrders };
+    this.state = { pastOrderView: this.props.pastOrders };
   }
 
   componentWillReceiveProps(nextProps, prevState) {
     this.setState({
-      orderView: nextProps.activeOrders,
+      pastOrderView: nextProps.pastOrders,
     });
   }
   renderTableHead() {
     const tableHead = [
       "Order ID",
-      "Received At",
+      "Completed At",
       "Customer Name",
       "Order Status",
       "Price",
@@ -26,7 +26,6 @@ class Ordertable extends Component {
       "",
     ];
     return tableHead.map((key, index) => {
-      console.log("123");
       return (
         <th scope="col" key={index} className="table-head">
           {key}
@@ -35,44 +34,47 @@ class Ordertable extends Component {
     });
   }
   expandOrder(index) {
-    const newShowExpandOrder = [...this.state.orderView];
+    const newShowExpandOrder = [...this.state.pastOrderView];
     newShowExpandOrder[index].showExpandOrder =
       !newShowExpandOrder[index].showExpandOrder;
-    this.setState({ orderView: newShowExpandOrder });
+    this.setState({ pastOrderView: newShowExpandOrder });
   }
-  renderSubmittedTime = (orderDetails) => {
+  renderSubmittedTime = (orderDetails, completedTime) => {
     const { DATE_FORMAT, DEFAULT_TIMEZONE, TIME_FORMAT } = Constants;
-    const { timeStamp } = orderDetails;
-    const submittedDate = formatToTimeZone(timeStamp, DATE_FORMAT, {
-      timeZone: DEFAULT_TIMEZONE,
-    });
-    const submittedTime = formatToTimeZone(timeStamp, TIME_FORMAT, {
-      timeZone: DEFAULT_TIMEZONE,
-    });
+    const { timeStamp, completeTimeStamp } = orderDetails;
+    const submittedDate = formatToTimeZone(
+      completedTime ? completeTimeStamp : timeStamp,
+      DATE_FORMAT,
+      {
+        timeZone: DEFAULT_TIMEZONE,
+      }
+    );
+    const submittedTime = formatToTimeZone(
+      completedTime ? completeTimeStamp : timeStamp,
+      TIME_FORMAT,
+      {
+        timeZone: DEFAULT_TIMEZONE,
+      }
+    );
     return `${submittedDate} ${submittedTime}`;
   };
-  renderLiveOrders() {
+
+  renderPastOrders() {
     const { calculateOrderTotal } = Functions;
-    const { orderView } = this.state;
-    const { onAcceptOrder, onCompleteOrder } = this.props;
-    return orderView.map((item, index) => {
+    const { pastOrderView } = this.state;
+    // const { onAcceptOrder, onCompleteOrder } = this.props;
+    return pastOrderView.map((item, index) => {
       const { orderDetails } = item;
       return (
         <React.Fragment key={index}>
           <tr>
             <th scope="row">#{orderDetails.orderID}</th>
             <td className="order-style">
-              {this.renderSubmittedTime(orderDetails)}
+              {this.renderSubmittedTime(orderDetails, true)}
             </td>
             <td className="order-style">{orderDetails.name}</td>
             <td>
-              <span
-                className={`badge ${
-                  orderDetails.orderStatus === "Pending"
-                    ? "badge-primary"
-                    : "badge-success"
-                }`}
-              >
+              <span className="badge btn-light">
                 {orderDetails.orderStatus}
               </span>
             </td>
@@ -91,7 +93,7 @@ class Ordertable extends Component {
                 />
                 Details
               </button>
-              {orderDetails.orderStatus === "Pending" ? (
+              {/* {orderDetails.orderStatus === "Pending" ? (
                 <button
                   className={`btn btn-statel btn-success my-0 align-middle order-text`}
                   onClick={() => onAcceptOrder(orderDetails)}
@@ -102,12 +104,12 @@ class Ordertable extends Component {
               ) : (
                 <button
                   className={`btn btn-state btn-secondary my-0 align-middle order-text`}
-                  onClick={() => onCompleteOrder(item)}
+                  onClick={() => onCompleteOrder(orderDetails)}
                 >
                   <i className="fas fa-thumbs-up" />
                   Complete
                 </button>
-              )}
+              )} */}
             </td>
           </tr>
 
@@ -129,7 +131,7 @@ class Ordertable extends Component {
     });
   }
   render() {
-    const { orderView } = this.state;
+    const { pastOrderView } = this.state;
     return (
       <div className="col-12">
         <div className="ms-panel">
@@ -143,11 +145,11 @@ class Ordertable extends Component {
                   <tr>{this.renderTableHead()}</tr>
                 </thead>
                 <tbody>
-                  {orderView.length > 0 ? (
-                    this.renderLiveOrders()
+                  {pastOrderView.length > 0 ? (
+                    this.renderPastOrders()
                   ) : (
                     <tr className="no-order">
-                      <td colspan="7">You don't have any Live Order</td>
+                      <td colspan="7">You don't have any Past Order</td>
                     </tr>
                   )}
                 </tbody>
@@ -160,4 +162,4 @@ class Ordertable extends Component {
   }
 }
 
-export default Ordertable;
+export default PastOrderTable;

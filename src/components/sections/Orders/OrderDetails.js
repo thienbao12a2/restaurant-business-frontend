@@ -39,7 +39,6 @@ class Detailcontent extends Component {
   }
   render() {
     const { item, renderSubmittedTime } = this.props;
-    console.log(item);
     const { orderDetails } = item;
 
     return (

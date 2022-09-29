@@ -18,7 +18,7 @@ const EmailModal = ({
   selectedItem = { email: "" },
   composeEmail,
 }) => {
-  const [email, setEmail] = useState(selectedItem.email);
+  const [email, setEmail] = useState(!composeEmail ? selectedItem.email : "");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [empty, setEmpty] = useState(false);

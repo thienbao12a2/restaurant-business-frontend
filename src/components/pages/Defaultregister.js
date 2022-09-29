@@ -16,7 +16,6 @@ const Defaultregister = () => {
   const registerUser = async (event) => {
     event.preventDefault();
     setSpinner(true);
-    console.log("submit");
     const response = await fetch(
       "http://127.0.0.1:8000/api/v1/my-restaurant/register",
       {
