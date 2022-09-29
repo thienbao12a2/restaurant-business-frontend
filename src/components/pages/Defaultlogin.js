@@ -36,7 +36,6 @@ class Defaultlogin extends React.Component {
     }
   }
   toastsuccess = () => {
-    console.log("toast");
     toastr.remove();
     toastr.options.positionClass = "toast-top-right";
     toastr.success("Successfully Logged Out", "Alert");

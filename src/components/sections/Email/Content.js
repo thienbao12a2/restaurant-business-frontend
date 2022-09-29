@@ -23,12 +23,12 @@ import moment from "moment-timezone";
 class Content extends Component {
   constructor(props) {
     super(props);
-    this.socket = io(Services.SOCKET_IO_URL, {
-      extraHeaders: {
-        "ngrok-skip-browser-warning": true,
-      },
-      transports: ["polling"],
-    });
+    // this.socket = io(Services.SOCKET_IO_URL, {
+    //   extraHeaders: {
+    //     "ngrok-skip-browser-warning": true,
+    //   },
+    //   transports: ["polling"],
+    // });
     this.state = {
       inbox: [],
       sentEmails: [],
@@ -52,8 +52,6 @@ class Content extends Component {
     //   });
     // }
     // emailCheckAll();
-    const { context } = this.props;
-    console.log("context", context);
     const token = localStorage.getItem("token");
     const login = localStorage.getItem("login");
     if (token) {
@@ -66,9 +64,9 @@ class Content extends Component {
           this.toastsuccess();
           localStorage.removeItem("login");
         }
-        this.socket.connect();
-        this.getAllEmails();
-        this.onCheckUpdatesFromSocket();
+        // this.socket.connect();
+        // this.getAllEmails();
+        // this.onCheckUpdatesFromSocket();
         // this.startServices();
         // this.onCheckUpdatesFromSocket();
         // this.socket.on("connect", () => {
@@ -88,28 +86,34 @@ class Content extends Component {
   }
 
   checkUnreadEmail(index) {
-    const newCheckUnreadEmail = [...this.state.inbox];
+    const { onReadEmail } = Functions;
+    const { context } = this.props;
+    const { inbox } = context;
+    const newCheckUnreadEmail = [...inbox];
     if (newCheckUnreadEmail[index].read) return;
     newCheckUnreadEmail[index].read = true;
-    this.onReadEmail(newCheckUnreadEmail[index]);
+    onReadEmail(newCheckUnreadEmail[index]);
   }
   expandEmail(index, type) {
-    console.log(type);
     if (type === "Inbox") {
+      const { context } = this.props;
+      const { inbox } = context;
+      console.log("expandEmail", inbox);
       this.checkUnreadEmail(index);
-      const newShowExpandEmail = [...this.state.inbox];
+      const newShowExpandEmail = [...inbox];
+      console.log(newShowExpandEmail);
       newShowExpandEmail[index].showExpandEmail =
         !newShowExpandEmail[index].showExpandEmail;
       this.setState({
-        inbox: newShowExpandEmail,
         composeEmail: false,
       });
     } else if (type === "Sent Email") {
-      const newShowExpandEmail = [...this.state.sentEmails];
+      const { context } = this.props;
+      const { sentEmails } = context;
+      const newShowExpandEmail = [...sentEmails];
       newShowExpandEmail[index].showExpandEmail =
         !newShowExpandEmail[index].showExpandEmail;
       this.setState({
-        sentEmails: newShowExpandEmail,
         composeEmail: false,
       });
     }
@@ -117,64 +121,68 @@ class Content extends Component {
   onComposeEmail = () => {
     this.setState({ composeEmail: true, showModal: true });
   };
-  onReadEmail = async (newCheckUnreadEmail) => {
-    const response = await axios.post(
-      "https://6505-2600-1700-5cac-3d30-f864-cbeb-fcb3-271b.ngrok.io/api/v1/my-restaurant/readEmail",
-      {
-        headers: { "ngrok-skip-browser-warning": true },
-        newCheckUnreadEmail,
-      }
-    );
-  };
-  renderSubmittedTime = (email) => {
-    const { DATE_FORMAT, DEFAULT_TIMEZONE, TIME_FORMAT } = Constants;
-    const { timeStamp } = email;
-    const submittedDate = formatToTimeZone(timeStamp, DATE_FORMAT, {
-      timeZone: DEFAULT_TIMEZONE,
-    });
-    const submittedTime = formatToTimeZone(timeStamp, TIME_FORMAT, {
-      timeZone: DEFAULT_TIMEZONE,
-    });
-    return `${submittedDate} ${submittedTime}`;
-  };
-  onCheckUpdatesFromSocket = () => {
-    this.socket.on("add-email-to-inbox", this.onAddNewEmail);
-  };
-  onAddNewEmail = (updatedInbox) => {
-    this.setState({
-      inbox: [{ ...updatedInbox }, ...this.state.inbox],
-    });
-  };
-  getAllEmails = async (refresh) => {
-    const { RankEmail } = Functions;
-    if (refresh) this.setState({ loading: true });
-    const response = await axios.get(
-      "http://127.0.0.1:8000/api/v1/my-restaurant/email"
-    );
+  // onReadEmail = async (newCheckUnreadEmail) => {
+  //   const response = await axios.post(
+  //     "https://6505-2600-1700-5cac-3d30-f864-cbeb-fcb3-271b.ngrok.io/api/v1/my-restaurant/readEmail",
+  //     {
+  //       headers: { "ngrok-skip-browser-warning": true },
+  //       newCheckUnreadEmail,
+  //     }
+  //   );
+  // };
+  // renderSubmittedTime = (email) => {
+  //   const { DATE_FORMAT, DEFAULT_TIMEZONE, TIME_FORMAT } = Constants;
+  //   const { timeStamp } = email;
+  //   const submittedDate = formatToTimeZone(timeStamp, DATE_FORMAT, {
+  //     timeZone: DEFAULT_TIMEZONE,
+  //   });
+  //   const submittedTime = formatToTimeZone(timeStamp, TIME_FORMAT, {
+  //     timeZone: DEFAULT_TIMEZONE,
+  //   });
+  //   return `${submittedDate} ${submittedTime}`;
+  // };
+  // onCheckUpdatesFromSocket = () => {
+  //   this.socket.on("add-email-to-inbox", this.onAddNewEmail);
+  // };
+  // onAddNewEmail = (updatedInbox) => {
+  //   this.setState({
+  //     inbox: [{ ...updatedInbox }, ...this.state.inbox],
+  //   });
+  // };
+  // getAllEmails = async (refresh) => {
+  //   const { RankEmail } = Functions;
+  //   if (refresh) this.setState({ loading: true });
+  //   const response = await axios.get(
+  //     "http://127.0.0.1:8000/api/v1/my-restaurant/email"
+  //   );
 
-    const { data } = response;
-    if (refresh) {
-      setTimeout(
-        () =>
-          this.setState({ loading: false }, () =>
-            this.setState({
-              inbox: RankEmail(data.data.emails),
-              sentEmails: RankEmail(data.data.sentEmails),
-            })
-          ),
-        2000
-      );
-    } else {
-      this.setState({
-        inbox: RankEmail(data.data.emails),
-        sentEmails: RankEmail(data.data.sentEmails),
-      });
-    }
-  };
+  //   const { data } = response;
+  //   if (refresh) {
+  //     setTimeout(
+  //       () =>
+  //         this.setState({ loading: false }, () =>
+  //           this.setState({
+  //             inbox: RankEmail(data.data.emails),
+  //             sentEmails: RankEmail(data.data.sentEmails),
+  //           })
+  //         ),
+  //       2000
+  //     );
+  //   } else {
+  //     this.setState({
+  //       inbox: RankEmail(data.data.emails),
+  //       sentEmails: RankEmail(data.data.sentEmails),
+  //     });
+  //   }
+  // };
+
   renderEmail(type) {
+    const { renderSubmittedTime } = Functions;
     if (type === "Inbox") {
-      const { inbox } = this.state;
-      console.log("inbox");
+      // const { inbox } = this.state;
+      const { context } = this.props;
+      const { inbox } = context;
+      console.log("inbox", inbox);
       return inbox.map((item, index) => {
         return (
           <li
@@ -196,7 +204,7 @@ class Content extends Component {
                 {item.read ? "Read" : "Unread"}
               </span>
               <span className="ms-email-time">
-                Received at: {this.renderSubmittedTime(item)}
+                Received at: {renderSubmittedTime(item)}
               </span>
               {!item.showExpandEmail && (
                 <span className="ms-click-to-read">Click to read messages</span>
@@ -223,7 +231,9 @@ class Content extends Component {
         );
       });
     } else if (type === "Sent Email") {
-      const { sentEmails } = this.state;
+      // const { sentEmails } = this.state;
+      const { context } = this.props;
+      const { sentEmails } = context;
       return sentEmails.map((item, index) => {
         return (
           <li
@@ -236,7 +246,7 @@ class Content extends Component {
               <span className="ms-email-sender">To: {item.email}</span>
               <h6 className="ms-email-subject">Subject: {item.subject}</h6>{" "}
               <span className="ms-email-time">
-                Sent at: {this.renderSubmittedTime(item)}
+                Sent at: {renderSubmittedTime(item)}
               </span>
               {!item.showExpandEmail && (
                 <span className="ms-click-to-read">Click to read messages</span>
@@ -253,17 +263,59 @@ class Content extends Component {
       });
     }
   }
-
+  calculateUnreadMessages() {
+    const { context } = this.props;
+    const { inbox } = context;
+    return inbox.reduce(
+      (partialSum, item) => (!item.read ? partialSum + 1 : partialSum),
+      0
+    );
+  }
+  getAllEmails = async (refresh) => {
+    const { RankEmail } = Functions;
+    if (refresh) this.setState({ loading: true });
+    const response = await axios.get(
+      "http://127.0.0.1:8000/api/v1/my-restaurant/email"
+    );
+    const { data } = response;
+    if (refresh) {
+      setTimeout(
+        () =>
+          this.setState({ loading: false }, () =>
+            this.setState({
+              inbox: RankEmail(data.data.emails),
+              sentEmails: RankEmail(data.data.sentEmails),
+            })
+          ),
+        2000
+      );
+    } else {
+      this.setState({
+        inbox: RankEmail(data.data.emails),
+        sentEmails: RankEmail(data.data.sentEmails),
+      });
+    }
+  };
+  onRefresh(refresh) {
+    const { context } = this.props;
+    const { getAllEmails } = context;
+    if (refresh) {
+      this.setState({ loading: true });
+      setTimeout(() => getAllEmails(), 2000);
+      setTimeout(() => this.setState({ loading: false }), 2000);
+    } else {
+      getAllEmails();
+    }
+  }
   renderInbox() {
-    const { inbox, loading, showModal, selectedItem, composeEmail } =
-      this.state;
-    console.log("rednerInbox");
+    const { loading } = this.state;
+
     return (
       <div className="ms-email-main">
         <div className="ms-email-header">
           <div className="ms-panel-inbox">
             <h6>Inbox</h6>
-            <p>{`You have ${inbox.length} Unread Messages`}</p>
+            <p>{`You have ${this.calculateUnreadMessages()} Unread Messages`}</p>
           </div>
           <ul className="ms-email-options">
             <li>
@@ -283,7 +335,7 @@ class Content extends Component {
               ) : (
                 <button
                   className="text-disabled refresh-btn"
-                  onClick={() => this.getAllEmails(true)}
+                  onClick={() => this.onRefresh(true)}
                 >
                   {" "}
                   <i className="material-icons">refresh</i> Refresh
@@ -303,14 +355,14 @@ class Content extends Component {
   }
   renderSentEMail() {
     const {
-      inbox,
+      // inbox,
       loading,
       showModal,
       selectedItem,
       composeEmail,
-      sentEmails,
+      // sentEmails,
     } = this.state;
-    console.log("sent");
+
     return (
       <div className="ms-email-main">
         <div className="ms-email-header">
@@ -355,15 +407,16 @@ class Content extends Component {
   }
   render() {
     const {
-      inbox,
+      // inbox,
       loading,
       showModal,
       selectedItem,
       composeEmail,
       switchToSentMail,
-      sentEmails,
+      // sentEmails,
     } = this.state;
-
+    const { context } = this.props;
+    const { inbox, sentEmails } = context;
     return (
       <div className="ms-content-wrapper">
         <div className="ms-panel ms-email-panel">

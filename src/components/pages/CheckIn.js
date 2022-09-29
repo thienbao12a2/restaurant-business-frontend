@@ -13,13 +13,14 @@ import { withRouter } from "react-router-dom";
 import { io } from "socket.io-client";
 import jwt from "jsonwebtoken";
 import Swal from "sweetalert2";
+import SeatMap from "../sections/Checkin/SeatMap";
 import {
   withContext,
   MerchantInterfaceConsumer,
 } from "../../context/MerchantInterfaceContext";
 import ding from "../../assets/audio/ding-sound.mp3";
 
-class LiveOrders extends Component {
+class CheckIn extends Component {
   constructor(props) {
     super(props);
     // this.socket = io(Services.SOCKET_IO_URL, {
@@ -202,15 +203,10 @@ class LiveOrders extends Component {
           <div className="ms-content-wrapper">
             <div className="row">
               <div className="col-md-12">
-                <Breadcrumb page={"Live Orders"} />
+                <Breadcrumb page={"Check In"} />
                 {/* <Favorder /> */}
 
-                <Ordertable
-                  activeOrders={activeOrders}
-                  // expandOrder={this.expandOrder}
-                  onAcceptOrder={onAcceptOrder}
-                  onCompleteOrder={onCompleteOrder}
-                />
+                <SeatMap />
               </div>
             </div>
           </div>
@@ -221,4 +217,4 @@ class LiveOrders extends Component {
   }
 }
 
-export default withContext(MerchantInterfaceConsumer)(LiveOrders);
+export default withContext(MerchantInterfaceConsumer)(CheckIn);

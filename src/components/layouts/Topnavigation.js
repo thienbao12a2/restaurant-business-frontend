@@ -8,6 +8,10 @@ import { Services, Functions, Constants } from "../../lib";
 import "react-perfect-scrollbar/dist/css/styles.css";
 import profile_pic from "../../assets/img/costic/profile_pic.png";
 import { io } from "socket.io-client";
+import {
+  MerchantInterfaceConsumer,
+  withContext,
+} from "../../context/MerchantInterfaceContext";
 
 class Topnavigation extends Component {
   constructor(props) {
@@ -20,7 +24,7 @@ class Topnavigation extends Component {
     });
     this.state = {
       name: "",
-      newEmailCount: sessionStorage.getItem("newEmailCount"),
+      newEmailCount: this.props.context.newEmailCount,
     };
   }
 
@@ -33,29 +37,29 @@ class Topnavigation extends Component {
   //     $("#ms-nav-options").toggleClass("ms-slide-down");
   //   };
   componentDidMount() {
-    console.log("mount");
-    this.socket.connect();
+    // this.socket.connect();
     const userName = localStorage.getItem("userData");
-    this.onCheckUpdatesFromSocket();
+    // this.onCheckUpdatesFromSocket();
+    // const newEmailCount = sessionStorage.getItem("newEmailCount");
     this.setState({ name: userName });
   }
-  componentWillUnmount() {
-    this.socket.off("increment-email-count", this.onCheckEmailCount); //Topnavigation component is not shared between pages but rather reused between pages. So If we go to new page, it will unmount Topnavigation and immediately re-mount it because It is reused in different pages.
-  }
-  onCheckUpdatesFromSocket = () => {
-    this.socket.on("increment-email-count", this.onCheckEmailCount);
-  };
-  onCheckEmailCount = (updatedInbox) => {
-    if (!sessionStorage.getItem("newEmailCount")) {
-      sessionStorage.setItem("newEmailCount", 1);
-    } else {
-      sessionStorage.setItem(
-        "newEmailCount",
-        Number(sessionStorage.getItem("newEmailCount")) + 1
-      );
-    }
-    this.setState({ newEmailCount: sessionStorage.getItem("newEmailCount") });
-  };
+  // componentWillUnmount() {
+  //   this.socket.off("increment-email-count", this.onCheckEmailCount); //Topnavigation component is not shared between pages but rather reused between pages. So If we go to new page, it will unmount Topnavigation and immediately re-mount it because It is reused in different pages.
+  // }
+  // onCheckUpdatesFromSocket = () => {
+  //   this.socket.on("increment-email-count", this.onCheckEmailCount);
+  // };
+  // onCheckEmailCount = (updatedInbox) => {
+  //   if (!sessionStorage.getItem("newEmailCount")) {
+  //     sessionStorage.setItem("newEmailCount", 1);
+  //   } else {
+  //     sessionStorage.setItem(
+  //       "newEmailCount",
+  //       Number(sessionStorage.getItem("newEmailCount")) + 1
+  //     );
+  //   }
+  //   this.setState({ newEmailCount: sessionStorage.getItem("newEmailCount") });
+  // };
   logoutUser = () => {
     localStorage.removeItem("activeOrders");
     localStorage.removeItem("token");
@@ -66,9 +70,21 @@ class Topnavigation extends Component {
   //   const newEmailCount = sessionStorage.getItem("newEmailCount");
   //   this.setState({ newEmailCount });
   // };
+  // resetNewEmailCount = () => {
+  //   sessionStorage.removeItem("newEmailCount");
+  //   console.log(1);
+  // };
   render() {
-    const { name, newEmailCount } = this.state;
-    console.log(newEmailCount);
+    const { name } = this.state;
+    const { context } = this.props;
+    const {
+      newEmailCount,
+      newNotificationCount,
+      resetNewEmailCount,
+      resetNotificationCount,
+      inbox,
+      activeOrders,
+    } = context;
     return (
       <nav className="navbar ms-navbar">
         <div
@@ -183,7 +199,7 @@ class Topnavigation extends Component {
               </Dropdown.Menu>
             </Dropdown>
           </li> */}
-          <li className="ms-nav-item dropdown">
+          {/* <li className="ms-nav-item dropdown">
             <Dropdown className="custom-dropdown">
               <Dropdown.Toggle
                 as={NavLink}
@@ -199,7 +215,9 @@ class Topnavigation extends Component {
                   <h6 className="dropdown-header ms-inline m-0">
                     <span className="text-disabled">Notifications</span>
                   </h6>
-                  <span className="badge badge-pill badge-info">4 New</span>
+                  <span className="badge badge-pill badge-info">
+                    {newNotificationCount ? `${newNotificationCount} New` : ""}
+                  </span>
                 </div>
                 <div className="dropdown-divider" />
                 <Scrollbar className="ms-scrollable ms-dropdown-list">
@@ -252,10 +270,10 @@ class Topnavigation extends Component {
                 </div>
               </Dropdown.Menu>
             </Dropdown>
-          </li>
+          </li> */}
           <li
             className="ms-nav-item ms-nav-user dropdown"
-            onClick={this.onClickUserMenu}
+            // onClick={this.onClickUserMenu}
           >
             <Dropdown className="custom-dropdown">
               <Dropdown.Toggle as={NavLink} id="userDropdown" className="p-0">
@@ -285,7 +303,7 @@ class Topnavigation extends Component {
                   <Link
                     className="media fs-14 p-2"
                     to="/email"
-                    onClick={() => sessionStorage.removeItem("newEmailCount")}
+                    onClick={resetNewEmailCount}
                   >
                     {" "}
                     <span>
@@ -339,4 +357,6 @@ class Topnavigation extends Component {
   }
 }
 
-export default withRouter(Topnavigation);
+export default withContext(MerchantInterfaceConsumer)(
+  withRouter(Topnavigation)
+);
