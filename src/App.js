@@ -250,7 +250,7 @@ class App extends React.Component {
             <Route path="/email" component={Email} />
             <Route path="/live-orders" component={LiveOrders} />
             <Route path="/past-orders" component={PastOrders} />
-            <Route path="/login" component={Defaultlogin} />
+            <Route path={"/" || "/login"} component={Defaultlogin} />
             <Route path="/register" component={Defaultregister} />
           </Switch>
         </Router>

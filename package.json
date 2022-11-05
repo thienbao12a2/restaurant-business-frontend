@@ -2,7 +2,7 @@
   "name": "restaurant-dashboard",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://restaurant-dashboard-team4.herokuapp.com/empire-steakhouse/login",
+  "homepage": "https://metropolitanhost.com/empire-steakhouse/login",
   "main": "lib/index",
   "types": "lib/index",
   "dependencies": {
