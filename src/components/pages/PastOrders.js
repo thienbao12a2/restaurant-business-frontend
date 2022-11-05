@@ -5,7 +5,6 @@ import Breadcrumb from "../sections/Orders/Breadcrumb";
 import PastOrderTable from "../sections/Orders/PastOrderTable";
 import Favorder from "../sections/Orders/Favorder";
 import Ordertable from "../sections/Orders/Ordertable";
-import Quickbar from "../layouts/Quickbar";
 import { Services, Functions } from "../../lib";
 import toastr from "toastr";
 import "toastr/build/toastr.min.css";
@@ -90,7 +89,6 @@ class PastOrders extends Component {
             </div>
           </div>
         </main>
-        {/* <Quickbar /> */}
       </div>
     );
   }

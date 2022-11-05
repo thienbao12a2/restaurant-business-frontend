@@ -3,7 +3,7 @@ import Sidenavigation from "../layouts/Sidenavigation";
 import Topnavigation from "../layouts/Topnavigation";
 import Breadcrumb from "../sections/Orders/Breadcrumb";
 import Favorder from "../sections/Orders/Favorder";
-import Ordertable from "../sections/Orders/Ordertable";
+import ReservationList from "../sections/Reservations/ReservationList";
 import { Services, Functions } from "../../lib";
 import toastr from "toastr";
 import "toastr/build/toastr.min.css";
@@ -18,7 +18,7 @@ import {
 } from "../../context/MerchantInterfaceContext";
 import ding from "../../assets/audio/ding-sound.mp3";
 
-class LiveOrders extends Component {
+class Reservations extends Component {
   constructor(props) {
     super(props);
     // this.socket = io(Services.SOCKET_IO_URL, {
@@ -192,7 +192,8 @@ class LiveOrders extends Component {
   render() {
     // const { activeOrders } = this.state;
     const { context } = this.props;
-    const { activeOrders, onAcceptOrder, onCompleteOrder } = context;
+    const { activeReservations, onAcceptReservation, onCompleteReservation } =
+      context;
     return (
       <div className="ms-body ms-aside-left-open ms-primary-theme ms-has-quickbar">
         <Sidenavigation />
@@ -201,14 +202,13 @@ class LiveOrders extends Component {
           <div className="ms-content-wrapper">
             <div className="row">
               <div className="col-md-12">
-                <Breadcrumb page={"Live Orders"} />
+                <Breadcrumb page="Reservations" />
                 {/* <Favorder /> */}
-
-                <Ordertable
-                  activeOrders={activeOrders}
+                <ReservationList
+                  activeReservations={activeReservations}
                   // expandOrder={this.expandOrder}
-                  onAcceptOrder={onAcceptOrder}
-                  onCompleteOrder={onCompleteOrder}
+                  // onAcceptReservation={onAcceptReservation}
+                  // onCompleteReservation={onCompleteReservation}
                 />
               </div>
             </div>
@@ -219,4 +219,4 @@ class LiveOrders extends Component {
   }
 }
 
-export default withContext(MerchantInterfaceConsumer)(LiveOrders);
+export default withContext(MerchantInterfaceConsumer)(Reservations);

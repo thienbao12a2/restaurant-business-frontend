@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import axios from "axios";
-import { Constants } from "../../lib";
+import { Constants, Services } from "../../lib";
 import { formatToTimeZone } from "date-fns-timezone/dist/formatToTimeZone";
 
 const DEFAULT_TIMESTAMP = "1980-01-01T00:00:00.000Z";
@@ -45,6 +45,26 @@ const RankPastOrders = (pastOrders = []) => {
   });
   return rankedPastOrders;
 };
+const RankActiveReservations = (activeReservations = []) => {
+  // let rankedOrders = [];
+  // let rankedOrders = [];
+  let rankedReservations = activeReservations.sort((a, b) => {
+    //   const obj1 = activeOrders[a];
+    //   const obj2 = activeOrders[b];
+    const timeStamp1 = a.timeStamp || DEFAULT_TIMESTAMP;
+    const timeStamp2 = b.timeStamp || DEFAULT_TIMESTAMP;
+    return dayjs(timeStamp2).diff(dayjs(timeStamp1));
+    // const status1_score = ORDER_STATUS_SCORES[obj1.status || "active"];
+    // const status2_score = ORDER_STATUS_SCORES[obj2.status || "active"];
+    // if (status1_score === status2_score) {
+    //   const timeStamp1 = obj1.timeStamp || DEFAULT_TIMESTAMP;
+    //   const timeStamp2 = obj2.timeStamp || DEFAULT_TIMESTAMP;
+    //   return differenceInMinutes(timeStamp2, timeStamp1);
+    // }
+    // return status2_score - status1_score;
+  });
+  return rankedReservations;
+};
 const calculateOrderTotal = (orderDetails) => {
   return orderDetails.reduce(
     (partialSum, item) => item.price * item.quantity + partialSum,
@@ -74,7 +94,7 @@ const RankEmail = (emails = []) => {
 
 const onConfirmOrder = async (orders) => {
   const response = await axios.post(
-    "https://6505-2600-1700-5cac-3d30-f864-cbeb-fcb3-271b.ngrok.io/api/v1/my-restaurant/confirmOrder",
+    `${Services.SOCKET_IO_URL}/api/v1/my-restaurant/confirmOrder`,
     {
       headers: { "ngrok-skip-browser-warning": true },
       orders,
@@ -85,7 +105,7 @@ const onConfirmOrder = async (orders) => {
 const onCompleteOrder = async (orders) => {
   console.log(orders);
   const response = await axios.post(
-    "https://6505-2600-1700-5cac-3d30-f864-cbeb-fcb3-271b.ngrok.io/api/v1/my-restaurant/past-order",
+    `${Services.SOCKET_IO_URL}/api/v1/my-restaurant/past-order`,
     {
       headers: { "ngrok-skip-browser-warning": true },
       orders,
@@ -95,7 +115,7 @@ const onCompleteOrder = async (orders) => {
 
 const onReadEmail = async (newCheckUnreadEmail) => {
   const response = await axios.post(
-    "https://6505-2600-1700-5cac-3d30-f864-cbeb-fcb3-271b.ngrok.io/api/v1/my-restaurant/readEmail",
+    `${Services.SOCKET_IO_URL}/api/v1/my-restaurant/readEmail`,
     {
       headers: { "ngrok-skip-browser-warning": true },
       newCheckUnreadEmail,
@@ -105,7 +125,10 @@ const onReadEmail = async (newCheckUnreadEmail) => {
 
 const onGetAllEmails = async () => {
   const response = await axios.get(
-    "http://127.0.0.1:8000/api/v1/my-restaurant/email"
+    `${Services.SOCKET_IO_URL}/api/v1/my-restaurant/email`,
+    {
+      headers: { "ngrok-skip-browser-warning": true },
+    }
   );
   const { data } = response;
   return data;
@@ -125,7 +148,7 @@ const renderSubmittedTime = (email) => {
 
 const startServices = async () => {
   const response = await axios.get(
-    "https://6505-2600-1700-5cac-3d30-f864-cbeb-fcb3-271b.ngrok.io/api/v1/my-restaurant/services",
+    `${Services.SOCKET_IO_URL}/api/v1/my-restaurant/services`,
     {
       headers: { "ngrok-skip-browser-warning": true },
     }
@@ -136,6 +159,7 @@ const startServices = async () => {
 export default {
   RankActiveOrders,
   RankPastOrders,
+  RankActiveReservations,
   calculateOrderTotal,
   RankEmail,
   onConfirmOrder,

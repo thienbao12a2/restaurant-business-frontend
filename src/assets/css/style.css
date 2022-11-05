@@ -4879,7 +4879,7 @@ a .badge[class*="badge-outline-"] {
   width: 100px;
   height: 70px;
 }
-.ms-image-slider .carousel-indicators li:before {
+/* .ms-image-slider .carousel-indicators li:before {
   width: 100%;
   height: 100%;
   content: "";
@@ -4895,7 +4895,7 @@ a .badge[class*="badge-outline-"] {
 }
 .ms-image-slider .carousel-indicators li:nth-child(3):before {
   background-image: url("../img/costic/add-product-3.jpg");
-}
+} */
 .ms-image-slider .carousel-indicators li.active:before {
   border: 1px solid #fff;
 }
@@ -5374,7 +5374,7 @@ table.dataTable thead .sorting_desc_disabled:after {
 .ms-auth-bg {
   position: relative;
   height: 100%;
-  background-image: url("../img/costic/Login-Side_Pic.jpg");
+  background-image: url("../img/general/Login-Side_Pic.jpg");
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center center;
@@ -5476,7 +5476,7 @@ table.dataTable thead .sorting_desc_disabled:after {
 }
 
 /* Lock screen */
-.ms-lock-screen {
+/* .ms-lock-screen {
   position: relative;
   display: flex;
   justify-content: center;
@@ -5485,7 +5485,7 @@ table.dataTable thead .sorting_desc_disabled:after {
   background-size: cover;
   background-position: center center;
   z-index: 2;
-}
+} */
 .ms-lock-screen-user {
   width: 150px;
   margin-bottom: 2rem;
@@ -5571,7 +5571,7 @@ table.dataTable thead .sorting_desc_disabled:after {
 }
 
 /* Error 404 */
-.ms-error-404 {
+/* .ms-error-404 {
   position: relative;
   display: flex;
   justify-content: center;
@@ -5580,7 +5580,7 @@ table.dataTable thead .sorting_desc_disabled:after {
   background-size: cover;
   background-position: center center;
   z-index: 2;
-}
+} */
 .ms-error-404::before,
 .ms-lock-screen::before {
   content: "";
@@ -5614,14 +5614,14 @@ table.dataTable thead .sorting_desc_disabled:after {
 }
 
 /* Coming Soon */
-.ms-coming-soon {
+/* .ms-coming-soon {
   display: flex;
   justify-content: center;
   align-items: center;
   background-image: url("../img/costic/coming-soon.jpg");
   background-size: cover;
   background-position: center center;
-}
+} */
 .ms-coming-soon .ms-content-wrapper {
   text-align: center;
   width: 500px;
@@ -5727,11 +5727,11 @@ a.ms-g-plus,
   -moz-box-shadow: 0 1px 6px 1px rgba(69, 65, 78, 0.1);
   box-shadow: 0 1px 6px 1px rgba(69, 65, 78, 0.1);
 }
-.ms-profile-cover {
+/* .ms-profile-cover {
   position: relative;
   display: flex;
   align-items: flex-end;
-  background-image: url("../img/costic/banner-1000x370.jpg");
+  background-image: url("../img/general/banner-1000x370.jpg");
   background-size: cover;
   background-position: center bottom;
   background-repeat: no-repeat;
@@ -5740,7 +5740,7 @@ a.ms-g-plus,
   padding: 1.5rem;
   padding-bottom: 0;
   z-index: 1;
-}
+} */
 .ms-profile-cover::after {
   content: "";
   position: absolute;
@@ -7986,13 +7986,7 @@ body:not(.ms-settings-open) .ms-settings-toggle:hover {
 .toast-warning {
   background-color: #f89406;
 }
-.google-marker {
-  background-image: url("../img/marker.png");
-  background-repeat: no-repeat;
-  background-size: contain;
-  width: 27px;
-  height: 40px;
-}
+
 .ms-form-wizard ul[role="tablist"] li:first-child > a:before {
   content: "Application";
 }
@@ -8117,4 +8111,18 @@ td {
 .no-order {
   font-family: "Roboto", sans-serif;
   font-weight: 500;
+}
+.box {
+  width: 50px;
+  height: 50px;
+  background-color: red;
+}
+.reservation-list {
+  width: 500px;
+  height: 50%;
+  /* background-color: Gray; */
+  overflow: auto;
+  overflow-y: scroll;
+  max-width: 500px;
+  max-height: 50%;
 }
