@@ -2,14 +2,10 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import Scrollbar from "react-perfect-scrollbar";
 import "react-perfect-scrollbar/dist/css/styles.css";
-import { Dropdown, NavLink } from "react-bootstrap";
-import $ from "jquery";
-import { io } from "socket.io-client";
 import jwt from "jsonwebtoken";
 import { withRouter } from "react-router-dom";
 import axios from "axios";
-import { Services, Functions, Constants } from "../../../lib";
-import { formatToTimeZone } from "date-fns-timezone/dist/formatToTimeZone";
+import { Functions } from "../../../lib";
 import { Collapse } from "react-collapse";
 import { Oval } from "react-loader-spinner";
 import EmailModal from "./EmailModal";
@@ -17,18 +13,10 @@ import {
   MerchantInterfaceConsumer,
   withContext,
 } from "../../../context/MerchantInterfaceContext";
-// import OrderDetails from "../Orders/OrderDetails";
-import moment from "moment-timezone";
 
 class Content extends Component {
   constructor(props) {
     super(props);
-    // this.socket = io(Services.SOCKET_IO_URL, {
-    //   extraHeaders: {
-    //     "ngrok-skip-browser-warning": true,
-    //   },
-    //   transports: ["polling"],
-    // });
     this.state = {
       inbox: [],
       sentEmails: [],
@@ -40,18 +28,7 @@ class Content extends Component {
     };
   }
 
-  // addpinned = (e) => {
-  //   var elem = e.target,
-  //     parentTask = elem.closest(".ms-email");
-  //   $(parentTask).toggleClass("pinned");
-  // };
   componentDidMount() {
-    // function emailCheckAll() {
-    //   $(".ms-email-check-all").on("click", function () {
-    //     $(".ms-email input").not(this).prop("checked", this.checked);
-    //   });
-    // }
-    // emailCheckAll();
     const token = localStorage.getItem("token");
     const login = localStorage.getItem("login");
     if (token) {
@@ -64,20 +41,6 @@ class Content extends Component {
           this.toastsuccess();
           localStorage.removeItem("login");
         }
-        // this.socket.connect();
-        // this.getAllEmails();
-        // this.onCheckUpdatesFromSocket();
-        // this.startServices();
-        // this.onCheckUpdatesFromSocket();
-        // this.socket.on("connect", () => {
-        //   const transport = this.socket.io.engine.transport.name; // in most cases, "polling"
-        //   console.log("transport", transport);
-
-        //   this.socket.io.engine.on("upgrade", () => {
-        //     const upgradedTransport = this.socket.io.engine.transport.name; // in most cases, "websocket"
-        //     console.log("web", upgradedTransport);
-        //   });
-        // });
       }
     } else {
       localStorage.removeItem("token");
@@ -121,60 +84,6 @@ class Content extends Component {
   onComposeEmail = () => {
     this.setState({ composeEmail: true, showModal: true });
   };
-  // onReadEmail = async (newCheckUnreadEmail) => {
-  //   const response = await axios.post(
-  //     "https://6505-2600-1700-5cac-3d30-f864-cbeb-fcb3-271b.ngrok.io/api/v1/my-restaurant/readEmail",
-  //     {
-  //       headers: { "ngrok-skip-browser-warning": true },
-  //       newCheckUnreadEmail,
-  //     }
-  //   );
-  // };
-  // renderSubmittedTime = (email) => {
-  //   const { DATE_FORMAT, DEFAULT_TIMEZONE, TIME_FORMAT } = Constants;
-  //   const { timeStamp } = email;
-  //   const submittedDate = formatToTimeZone(timeStamp, DATE_FORMAT, {
-  //     timeZone: DEFAULT_TIMEZONE,
-  //   });
-  //   const submittedTime = formatToTimeZone(timeStamp, TIME_FORMAT, {
-  //     timeZone: DEFAULT_TIMEZONE,
-  //   });
-  //   return `${submittedDate} ${submittedTime}`;
-  // };
-  // onCheckUpdatesFromSocket = () => {
-  //   this.socket.on("add-email-to-inbox", this.onAddNewEmail);
-  // };
-  // onAddNewEmail = (updatedInbox) => {
-  //   this.setState({
-  //     inbox: [{ ...updatedInbox }, ...this.state.inbox],
-  //   });
-  // };
-  // getAllEmails = async (refresh) => {
-  //   const { RankEmail } = Functions;
-  //   if (refresh) this.setState({ loading: true });
-  //   const response = await axios.get(
-  //     "http://127.0.0.1:8000/api/v1/my-restaurant/email"
-  //   );
-
-  //   const { data } = response;
-  //   if (refresh) {
-  //     setTimeout(
-  //       () =>
-  //         this.setState({ loading: false }, () =>
-  //           this.setState({
-  //             inbox: RankEmail(data.data.emails),
-  //             sentEmails: RankEmail(data.data.sentEmails),
-  //           })
-  //         ),
-  //       2000
-  //     );
-  //   } else {
-  //     this.setState({
-  //       inbox: RankEmail(data.data.emails),
-  //       sentEmails: RankEmail(data.data.sentEmails),
-  //     });
-  //   }
-  // };
 
   renderEmail(type) {
     const { renderSubmittedTime } = Functions;
@@ -272,12 +181,13 @@ class Content extends Component {
     );
   }
   getAllEmails = async (refresh) => {
-    const { RankEmail } = Functions;
+    const { RankEmail, onGetAllEmails } = Functions;
     if (refresh) this.setState({ loading: true });
-    const response = await axios.get(
-      "http://127.0.0.1:8000/api/v1/my-restaurant/email"
-    );
-    const { data } = response;
+    // const response = await axios.get(
+    //   "http://127.0.0.1:8000/api/v1/my-restaurant/email"
+    // );
+    // const { data } = response;
+    const data = onGetAllEmails();
     if (refresh) {
       setTimeout(
         () =>

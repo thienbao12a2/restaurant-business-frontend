@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
-import Sidenavigation from "../layouts/Sidenavigation";
-import Topnavigation from "../layouts/Topnavigation";
+import { Functions } from "../../lib";
 import Content from "../sections/Defaultregister/Content";
 
 const Defaultregister = () => {
@@ -14,23 +13,10 @@ const Defaultregister = () => {
   const [spinner, setSpinner] = useState(false);
 
   const registerUser = async (event) => {
+    const { register } = Functions;
     event.preventDefault();
     setSpinner(true);
-    const response = await fetch(
-      "http://127.0.0.1:8000/api/v1/my-restaurant/register",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          firstName,
-          lastName,
-          email,
-          password,
-        }),
-      }
-    );
+    const response = await register(firstName, lastName, email, password);
     const data = await response.json();
     if (data.status === "success") {
       setTimeout(() => {

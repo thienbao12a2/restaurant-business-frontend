@@ -147,7 +147,7 @@ class Ordertable extends Component {
                     this.renderLiveOrders()
                   ) : (
                     <tr className="no-order">
-                      <td colspan="7">You don't have any Live Order</td>
+                      <td colSpan="7">You don't have any Live Order</td>
                     </tr>
                   )}
                 </tbody>

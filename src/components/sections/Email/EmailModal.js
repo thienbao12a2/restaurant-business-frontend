@@ -55,12 +55,19 @@ const EmailModal = ({
   //   }
   // };
   const onSubmit = async () => {
+    const { submitEmail } = Functions;
     if ((email, subject, message)) {
       setSpinner(true);
-      const response = await axios.post(
-        "http://127.0.0.1:8000/api/v1/my-restaurant/email",
-        { email, subject, message, timeStamp: moment().toISOString() }
+      const response = submitEmail(
+        email,
+        subject,
+        message,
+        moment().toISOString()
       );
+      // const response = await axios.post(
+      //   "http://127.0.0.1:8000/api/v1/my-restaurant/email",
+      //   { email, subject, message, timeStamp: moment().toISOString() }
+      // );
       if (response.data.status === "success") {
         setTimeout(() => setSpinner(false), 3000);
         setTimeout(() => setSuccess(true), 3000);

@@ -149,7 +149,7 @@ class PastOrderTable extends Component {
                     this.renderPastOrders()
                   ) : (
                     <tr className="no-order">
-                      <td colspan="7">You don't have any Past Order</td>
+                      <td colSpan="7">You don't have any Past Order</td>
                     </tr>
                   )}
                 </tbody>

@@ -1,6 +1,5 @@
 import React from "react";
-// import Sidenavigation from "../layouts/Sidenavigation";
-// import Topnavigation from "../layouts/Topnavigation";
+import { Functions } from "../../lib";
 import Content from "../sections/Defaultlogin/Content";
 import toastr from "toastr";
 import "toastr/build/toastr.min.css";
@@ -40,23 +39,11 @@ class Defaultlogin extends React.Component {
     toastr.options.positionClass = "toast-top-right";
     toastr.success("Successfully Logged Out", "Alert");
   };
-
   loginUser = async (event) => {
     event.preventDefault();
+    const { login } = Functions;
     const { email, password } = this.state;
-    const response = await fetch(
-      "http://127.0.0.1:8000/api/v1/my-restaurant/login",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      }
-    );
+    const response = await login(email, password);
     const data = await response.json();
     if (data.userToken) {
       localStorage.setItem("token", data.userToken);
